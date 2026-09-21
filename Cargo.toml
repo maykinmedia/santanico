@@ -1,0 +1,18 @@
+[package]
+name = "santanico"
+version = "0.1.0"
+edition = "2024"
+# Floor set by `edition = "2024"` (stabilised in Rust 1.85). Cargo refuses to
+# build with an older toolchain and rust-analyzer / CI pick this up too.
+rust-version = "1.85"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "santanico"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.29", features = ["extension-module"] }
+
+[profile.release]
+strip = "symbols"
