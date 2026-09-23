@@ -85,7 +85,16 @@ impl RtfStreamFilter {
                     // (the destination marker in '{\*\dest').
                     b.is_ascii_alphabetic() || (word_empty && b == b'*')
                 };
-                if is_word_char {
+                // Bound the word: once it exceeds MAX_DEST_LEN it cannot be a
+                // destination, so stop collecting and let decide_header flush
+                // it verbatim. This keeps header_buf O(1) even for an
+                // adversarial unterminated control word.
+                let within_bound = if collecting_dest {
+                    self.header_buf.len() < 4 + MAX_DEST_LEN
+                } else {
+                    self.header_buf.len() < 2 + MAX_DEST_LEN
+                };
+                if is_word_char && within_bound {
                     self.header_buf.push(b);
                     continue;
                 }
@@ -284,38 +293,48 @@ impl RtfStreamFilter {
     }
 }
 
-/// Matches ONLY hidden privacy hazards, editing history, and tool metadata,
-/// leaving presentation tables (fonts, colors, styles, math) completely intact.
+/// Maximum length of any destination tag. Used to bound `header_buf` so an
+/// adversarial unterminated control word cannot grow it to O(input size).
+///
+/// MUST be >= the longest entry in `DEST_TAGS`; the
+/// `max_dest_tag_len_within_bound` test enforces this.
+const MAX_DEST_LEN: usize = 32;
+
+/// Destination tags to strip. Matches ONLY hidden privacy hazards, editing
+/// history, and tool metadata; presentation tables (fonts, colors, styles,
+/// math) are left intact. Keep in lockstep with `_DEST_TAGS` in
+/// tests/reference_rtf_filter.py.
+const DEST_TAGS: &[&[u8]] = &[
+    // Document Info & Core Properties
+    b"info",
+    b"doccomm",
+    b"keywords",
+    b"comment",
+    b"author",
+    b"title",
+    b"subject",
+    b"company",
+    b"manager",
+    b"category",
+    b"operator",
+    // Session Tracking & Revision History
+    b"rsidtbl",
+    b"trackedchanges",
+    // Reviewer Annotations
+    b"annotation",
+    b"atnauthor",
+    b"atndate",
+    b"atnicn",
+    // Generator Signatures, Custom Props, & Internal XML Schemas
+    b"generator",
+    b"userprops",
+    b"xmltbl",
+    b"customxml",
+];
+
 #[inline]
 fn is_destination_tag(tag: &[u8]) -> bool {
-    matches!(
-        tag,
-        // Document Info & Core Properties
-        b"info"
-            | b"doccomm"
-            | b"keywords"
-            | b"comment"
-            | b"author"
-            | b"title"
-            | b"subject"
-            | b"company"
-            | b"manager"
-            | b"category"
-            | b"operator"
-        // Session Tracking & Revision History
-            | b"rsidtbl"
-            | b"trackedchanges"
-        // Reviewer Annotations
-            | b"annotation"
-            | b"atnauthor"
-            | b"atndate"
-            | b"atnicn"
-        // Generator Signatures, Custom Props, & Internal XML Schemas
-            | b"generator"
-            | b"userprops"
-            | b"xmltbl"
-            | b"customxml"
-    )
+    DEST_TAGS.contains(&tag)
 }
 
 #[pyclass(name = "RtfStreamFilter")]
@@ -354,4 +373,23 @@ impl PyRtfStreamFilter {
 fn santanico(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyRtfStreamFilter>()?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Invariant: `MAX_DEST_LEN` must be >= the longest destination tag.
+    /// Otherwise the word-length guard in `process_chunk` stops collecting
+    /// before a real destination tag completes, and that tag is no longer
+    /// stripped. Bumping `MAX_DEST_LEN` is required whenever a longer tag is
+    /// added to `DEST_TAGS`.
+    #[test]
+    fn max_dest_tag_len_within_bound() {
+        let longest = DEST_TAGS.iter().map(|t| t.len()).max().unwrap_or(0);
+        assert!(
+            longest <= MAX_DEST_LEN,
+            "MAX_DEST_LEN ({MAX_DEST_LEN}) must be >= the longest destination tag ({longest})"
+        );
+    }
 }

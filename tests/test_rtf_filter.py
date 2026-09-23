@@ -301,3 +301,24 @@ def test_reset(
     f.reset()
 
     assert f.process_chunk(doc) == cleaned_doc
+
+
+@pytest.mark.limit_memory("1MB")  # Fails if peak heap growth during the test > 1MB
+@pytest.mark.parametrize(
+    "Filter",
+    [RtfStreamFilter, PyRtfStreamFilter],
+    ids=["rust", "python"],
+)
+def test_header_buf_bounded(Filter: type[PyRtfStreamFilter | RtfStreamFilter]):
+    f = Filter()
+
+    adversarial_chunk = b"a" * 1024
+
+    f = Filter()
+
+    # Send the unterminated control word start
+    f.process_chunk(b"{\\")
+
+    for _ in range(10_000):
+        # keep sending control word chunks
+        f.process_chunk(adversarial_chunk)
