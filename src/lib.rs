@@ -228,9 +228,20 @@ impl RtfStreamFilter {
             } else {
                 // Destination group with a body; suppress until the matching '}'.
                 self.begin_suppression();
-                if b == b'{' {
-                    // The delimiter is a nested group's '{'; count it for depth.
-                    self.brace_depth += 1;
+                match b {
+                    b'{' => {
+                        // The delimiter is a nested group's '{'; count it for depth.
+                        self.brace_depth += 1;
+                    }
+                    b'\\' => {
+                        // The delimiter is a backslash, i.e. the start of an escape
+                        // in the group body. Mark it so the following byte is consumed
+                        // as its partner, keeping brace counting in sync while we
+                        // suppress (otherwise a real closing '}' could be eaten as an
+                        // escaped byte, e.g. '{\info\\}').
+                        self.escaped = true;
+                    }
+                    _ => {}
                 }
             }
             return;
@@ -241,28 +252,34 @@ impl RtfStreamFilter {
             // No control word; 'b' is a literal, not a group boundary.
             self.header_buf.push(b);
             self.flush_header(output);
-            return;
+        } else {
+            match b {
+                b'{' => {
+                    // A control word followed by '{' opens a nested group.
+                    self.flush_header(output);
+                    self.brace_depth += 1;
+                    self.header_state = HeaderState::ExpectSlash;
+                    self.header_buf.clear();
+                    self.header_buf.push(b'{');
+                }
+                b'}' => {
+                    // The control word's group closes here.
+                    self.flush_header(output);
+                    output.push(b'}');
+                    self.brace_depth = self.brace_depth.saturating_sub(1);
+                }
+                _ => {
+                    // Delimiter or ordinary byte; keep it.
+                    self.header_buf.push(b);
+                    self.flush_header(output);
+                }
+            }
         }
-        match b {
-            b'{' => {
-                // A control word followed by '{' opens a nested group.
-                self.flush_header(output);
-                self.brace_depth += 1;
-                self.header_state = HeaderState::ExpectSlash;
-                self.header_buf.clear();
-                self.header_buf.push(b'{');
-            }
-            b'}' => {
-                // The control word's group closes here.
-                self.flush_header(output);
-                output.push(b'}');
-                self.brace_depth = self.brace_depth.saturating_sub(1);
-            }
-            _ => {
-                // Delimiter or ordinary byte; keep it.
-                self.header_buf.push(b);
-                self.flush_header(output);
-            }
+        // A backslash delimiter is the start of an escape in the (kept)
+        // content; mark it so the following byte is consumed as its partner,
+        // keeping the output verbatim (e.g. '{\b\\{...}}').
+        if b == b'\\' {
+            self.escaped = true;
         }
     }
 }
