@@ -1,6 +1,8 @@
 # Python-generated files
 __pycache__/
 *.py[oc]
+# `maturin develop` places .so in project dir so editable installs work
+*.so
 build/
 dist/
 wheels/
