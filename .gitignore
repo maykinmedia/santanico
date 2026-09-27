@@ -7,9 +7,19 @@ build/
 dist/
 wheels/
 *.egg-info
+.coverage
 
 # Virtual environments
 .venv
 
 # Cargo build
 target/
+
+# Test reports (coverage)
+reports/
+
+# Docs build
+docs/_build/
+
+# Scratch dir for the pure-Python wheel build (scripts/build_pure_wheel.py)
+.pure-build/
