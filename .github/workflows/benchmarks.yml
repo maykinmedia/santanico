@@ -1,0 +1,43 @@
+name: Benchmarks
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.14"]
+
+    name: Run benchmarks (Python ${{ matrix.python }})
+
+    steps:
+      - uses: actions/checkout@main
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@main
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install dependencies
+        run: pip install tox tox-uv
+
+      - name: Run benchmarks
+        run: tox -e benchmark -- --benchmark-json=reports/benchmark.json
+        env:
+          FORCE_COLOR: "1"
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@main
+        with:
+          name: benchmarks-py${{ matrix.python }}
+          path: reports/
