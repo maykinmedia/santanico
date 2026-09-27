@@ -65,21 +65,23 @@ def test_filter_throughput_20mb(Filter, chunk_size, benchmark):
     # 2. Execute benchmark loop
     result = benchmark(run_filter)
 
-    # 3. Compute throughput and attach extra info
-    mean_time_seconds = benchmark.stats["mean"]
-    throughput_mb_s = payload_size_mb / mean_time_seconds
+    # 3. Compute throughput and attach extra info. `benchmark.stats` is None
+    # when benchmarks are disabled (--benchmark-disable, the default).
+    if benchmark.stats is not None:
+        mean_time_seconds = benchmark.stats["mean"]
+        throughput_mb_s = payload_size_mb / mean_time_seconds
 
-    chunk_label = f"{chunk_size // 1024}k" if chunk_size else "full"
-    benchmark.extra_info["payload_size_mb"] = round(payload_size_mb, 2)
-    benchmark.extra_info["chunk_size"] = chunk_label
-    benchmark.extra_info["throughput_mb_s"] = round(throughput_mb_s, 2)
+        chunk_label = f"{chunk_size // 1024}k" if chunk_size else "full"
+        benchmark.extra_info["payload_size_mb"] = round(payload_size_mb, 2)
+        benchmark.extra_info["chunk_size"] = chunk_label
+        benchmark.extra_info["throughput_mb_s"] = round(throughput_mb_s, 2)
+
+        print(
+            f"\nThroughput ({chunk_label}): {throughput_mb_s:.2f} MB/s "
+            f"({payload_size_mb:.2f} MB in {mean_time_seconds * 1000:.2f} ms)"
+        )
 
     # 4. Correctness assertions (real correctness is established in PBT tests)
     assert len(result) < len(payload)
     assert b"Benchmarker" not in result
     assert b"bold text" in result
-
-    print(
-        f"\nThroughput ({chunk_label}): {throughput_mb_s:.2f} MB/s "
-        f"({payload_size_mb:.2f} MB in {mean_time_seconds * 1000:.2f} ms)"
-    )

@@ -78,3 +78,7 @@ source = ["santanico"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Benchmarks are expensive (20 MB payloads, multiple runs); they are skipped
+# by default. Run them explicitly with `pytest --benchmark-enable` or
+# `tox -e benchmark`.
+addopts = "--benchmark-disable"
