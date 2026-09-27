@@ -13,7 +13,7 @@ name: Release
 on:
   push:
     tags:
-      - '*'
+      - "*"
   workflow_dispatch:
 
 permissions:
@@ -120,11 +120,34 @@ jobs:
           name: wheels-sdist
           path: dist
 
+  # Pure-Python fallback wheel (py3-none-any): keeps `pip install` working on
+  # platforms without a matching wheel and without a Rust toolchain to build
+  # the sdist. Built with flit_core via scripts/build_pure_wheel.py (maturin
+  # has no pure-wheel mode: it always compiles the pyo3 extension).
+  pure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+      - name: Install uv
+        run: pip install uv
+      - name: Build pure Python fallback wheel
+        run: python scripts/build_pure_wheel.py
+      - name: Upload pure wheel
+        uses: actions/upload-artifact@v6
+        with:
+          name: wheels-pure
+          path: dist/santanico-*-py3-none-any.whl
+
   release:
     name: Release
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
-    needs: [linux, macos, windows, sdist]
+    needs: [linux, macos, windows, sdist, pure]
     environment: release
     permissions:
       # Used for PyPI trusted publishing (OIDC token exchange)
@@ -148,7 +171,7 @@ jobs:
       - name: Generate artifact attestation
         uses: actions/attest@v4
         with:
-          subject-path: 'dist/*'
+          subject-path: "dist/*"
       - name: Install uv
         if: startsWith(github.ref, 'refs/tags/')
         run: pip install uv

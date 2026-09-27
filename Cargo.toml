@@ -1,6 +1,9 @@
 [package]
 name = "santanico"
 version = "0.1.0"
+description = "Strip document metadata at scary speeds with Python and Rust."
+license = "MIT"
+repository = "https://github.com/maykinmedia/santanico"
 edition = "2024"
 # Floor set by `edition = "2024"` (stabilised in Rust 1.85). Cargo refuses to
 # build with an older toolchain and rust-analyzer / CI pick this up too.
