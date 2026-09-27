@@ -18,6 +18,11 @@ class RtfStreamFilter:
     bytes via :meth:`process_chunk` (possibly across many calls) and collect
     the returned bytes. Call :meth:`reset` to return the filter to a fresh
     state so it can be reused for another document.
+
+    Instances are not thread-safe: sharing one instance across threads
+    interleaves their streaming state and corrupts the output. Create one
+    filter per stream (e.g. one per thread) and feed each only its own
+    chunks, sequentially.
     """
 
     def __init__(self) -> None:
