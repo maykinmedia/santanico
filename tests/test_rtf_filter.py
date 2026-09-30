@@ -6,7 +6,8 @@ import pytest
 from hypothesis import example, given
 from hypothesis import strategies as st
 
-from santanico import PyRtfStreamFilter, RtfStreamFilter
+from santanico import PyRtfStreamFilter
+from santanico.santanico import RtfStreamFilter
 
 # AST NODES
 # =========

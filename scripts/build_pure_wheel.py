@@ -26,10 +26,14 @@ def main() -> None:
     cargo = (ROOT / "Cargo.toml").read_text()
     version = re.search(
         r'(?<=name = "santanico"\nversion = ")[0-9]+\.[0-9]+\.[0-9]+', cargo
-    ).group(0)
+    )
+    assert version
+    version = version.group(0)
 
     # Slice the [project] table out of the real pyproject, verbatim.
-    project = re.search(r"\[project\]\n(.*?)(?=\n\[)", pyproject, re.DOTALL).group(1)
+    project = re.search(r"\[project\]\n(.*?)(?=\n\[)", pyproject, re.DOTALL)
+    assert project
+    project = project.group(1)
     project = re.sub(r'dynamic = \["version"\]\n', f'version = "{version}"\n', project)
     # flit_core rejects the deprecated license table next to license-files;
     # convert to the PEP 639 SPDX expression form.
