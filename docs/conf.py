@@ -14,9 +14,10 @@ import sys
 from pathlib import Path
 
 current_dir = Path(__file__).parents[1]
-code_directory = current_dir / "santanico"
 
-sys.path.insert(0, str(code_directory))
+# Put the repo root on sys.path so autodoc can import `santanico` from source,
+# so building docs does not require compiling the Rust code on the RTD worker.
+sys.path.insert(0, str(current_dir))
 
 # -- Project information -----------------------------------------------------
 

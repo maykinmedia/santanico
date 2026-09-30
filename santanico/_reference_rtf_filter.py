@@ -73,6 +73,16 @@ def _is_destination_tag(tag: bytes) -> bool:
 
 
 class PyRtfStreamFilter:
+    """Pure-Python reference implementation of :class:`~santanico.StreamingFilter`.
+
+    Used automatically as the fallback when the native Rust extension
+    (``santanico.santanico``) is not compiled or cannot be imported. It is
+    functionally equivalent to the Rust implementation but considerably
+    slower, so it exists for portability rather than performance.
+
+    Like the Rust filter, instances are stateful and **not thread-safe**.
+    """
+
     __slots__ = (
         "_brace_depth",
         "_escaped",
@@ -82,6 +92,7 @@ class PyRtfStreamFilter:
     )
 
     def __init__(self) -> None:
+        """Create a new filter in its initial (fresh) state."""
         self._brace_depth = 0
         self._suppress_at_depth = None
         self._escaped = False
@@ -89,6 +100,12 @@ class PyRtfStreamFilter:
         self._header_buf = bytearray()
 
     def reset(self) -> None:
+        """Reset all internal state to that of a freshly created filter.
+
+        After this call the filter behaves byte-for-byte identically to a
+        newly constructed filter, discarding any partially consumed or
+        in-progress input.
+        """
         self._brace_depth = 0
         self._suppress_at_depth = None
         self._escaped = False
@@ -96,6 +113,14 @@ class PyRtfStreamFilter:
         self._header_buf.clear()
 
     def process_chunk(self, chunk: bytes) -> bytes:
+        """Feed a chunk of RTF bytes into the stream and return the filtered output.
+
+        :param chunk: Any slice of the source document. May be empty, and may
+            split a control word, escape sequence, or brace group at any point.
+        :returns: The metadata-stripped bytes corresponding to this chunk, in
+            order. Concatenating the results of successive calls yields the
+            fully stripped document.
+        """
         out = bytearray()
         buf = self._header_buf
         for b in chunk:

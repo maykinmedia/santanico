@@ -17,8 +17,9 @@ back to a pure-Python implementation (with a ``RuntimeWarning``).
 Usage
 =====
 
-.. autoclass:: santanico.RtfStreamFilter
-   :members:
+The entry point is :data:`santanico.RtfStreamFilter`, a streaming filter that
+conforms to the :class:`santanico.StreamingFilter` interface. See the
+:doc:`API reference <api>` for the full method reference.
 
 Example: streaming a file in chunks
 ===================================

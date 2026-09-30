@@ -1,0 +1,10 @@
+# Dependencies for building the Sphinx docs on Read the Docs.
+#
+# Mirrors the `docs` dependency group in pyproject.toml. It is kept as a
+# separate file because Read the Docs' `dependency_group` option requires a
+# `path`, which would also build the package (compiling the Rust extension).
+# The docs do not need the Rust extension: autodoc imports `santanico` from
+# source, which falls back to a pure-Python implementation (see docs/conf.py
+# and santanico/__init__.py).
+sphinx>=7.0.0
+sphinx-rtd-theme>=2.0.0

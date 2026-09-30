@@ -25,6 +25,7 @@ Features
    :caption: Contents:
 
    quickstart
+   api
 
 
 

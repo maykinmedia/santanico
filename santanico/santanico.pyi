@@ -39,13 +39,9 @@ class RtfStreamFilter:
     def process_chunk(self, chunk: bytes, /) -> bytes:
         """Feed a chunk of RTF bytes into the stream and return the filtered output.
 
-        Args:
-            chunk: Any slice of the source document. May be empty, and may
-                split a control word, escape sequence, or brace group at any
-                point.
-
-        Returns:
-            The metadata-stripped bytes corresponding to this chunk, in order.
-            Concatenating the results of successive calls yields the fully
-            stripped document.
+        :param chunk: Any slice of the source document. May be empty, and may
+            split a control word, escape sequence, or brace group at any point.
+        :returns: The metadata-stripped bytes corresponding to this chunk, in
+            order. Concatenating the results of successive calls yields the
+            fully stripped document.
         """
