@@ -42,6 +42,7 @@ include = ["santanico/*.pyi", "santanico/py.typed"]
 dev = [
     "hypothesis>=6.113.0",
     "maturin>=1.15.0",
+    "pyright>=1.1.414",
     "pytest-benchmark>=4.0.0",
     "pytest-cov>=5.0.0",
     "pytest-memray>=1.11.0",
@@ -76,9 +77,13 @@ files = [
 branch = true
 source = ["santanico"]
 
+[tool.pyright]
+include = ["santanico", "tests", "scripts"]
+pythonVersion = "3.11"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 # Benchmarks are expensive (20 MB payloads, multiple runs); they are skipped
 # by default. Run them explicitly with `pytest --benchmark-enable` or
 # `tox -e benchmark`.
-addopts = "--benchmark-disable"
+addopts = "--benchmark-skip"

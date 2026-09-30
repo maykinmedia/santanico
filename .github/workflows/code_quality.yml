@@ -21,6 +21,7 @@ jobs:
       matrix:
         toxenv:
           - lint
+          - typecheck
           - rust
           - docs
           - build
