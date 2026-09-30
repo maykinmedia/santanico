@@ -69,12 +69,23 @@ Install the development dependencies, then build the native extension
 in-place for an editable install::
 
     uv sync --all-groups
-    maturin develop
+    uv run maturin develop
 
-Run the checks and tests with tox::
+Re-run ``maturin develop`` after changing the Rust code. Run the tests
+directly with pytest; the memory-limit tests only run with ``--memray``::
 
-    tox -e lint,rust,docs
-    tox
+    uv run pytest --benchmark-skip
+    uv run pytest -m limit_memory --memray
+
+Run the code-quality checks and the full test matrix with tox (``tox p``
+runs the environments in parallel)::
+
+    tox -e lint,typecheck,rust,docs,build
+    tox p
+
+The tox test environments skip the benchmarks; run them explicitly::
+
+    tox -e benchmark
 
 .. |build-status| image:: https://github.com/maykinmedia/santanico/workflows/Run%20CI/badge.svg
     :alt: Build status
