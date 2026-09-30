@@ -28,7 +28,7 @@ author = "Maykin Media"
 # The full version, including alpha/beta/rc tags.
 # Static on purpose: kept in sync with Cargo.toml (the version maturin
 # releases) by bump-my-version, see [tool.bumpversion] in pyproject.toml.
-release = "0.1.0"
+release = "0.1.1"
 
 # -- General configuration ---------------------------------------------------
 

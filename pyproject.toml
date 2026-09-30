@@ -62,7 +62,7 @@ release = [
 # README.rst and docs/conf.py carry static copies, kept in sync by running
 # bump-my-version (see [dependency-groups] `release`).
 [tool.bumpversion]
-current_version = "0.1.0"
+current_version = "0.1.1"
 files = [
     # Searches are anchored with lookbehinds so the match (and therefore the
     # replacement) is the version string itself only; in Cargo.toml the
