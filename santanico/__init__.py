@@ -1,4 +1,8 @@
 from ._reference_rtf_filter import PyRtfStreamFilter
+from .protocol import StreamingFilter
+
+# Both implementations implement this interface
+RtfStreamFilter: type[StreamingFilter]
 
 try:
     # Native compiled Rust implementation
@@ -13,9 +17,11 @@ except ImportError:
         stacklevel=2,
     )
     # Fall back transparently
-    RtfStreamFilter = PyRtfStreamFilter  # type: ignore
+    RtfStreamFilter = PyRtfStreamFilter
+
 
 __all__ = [
     "PyRtfStreamFilter",  # Explicit pure-Python implementation
     "RtfStreamFilter",  # Default (Rust if compiled, Python as fallback)
+    "StreamingFilter",  # Shared streaming interface
 ]
