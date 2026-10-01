@@ -14,8 +14,6 @@ Strip document metadata at scary speeds, with Python and Rust.
 
 .. contents::
 
-.. section-numbering::
-
 Features
 ========
 
