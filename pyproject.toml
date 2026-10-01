@@ -63,12 +63,21 @@ release = [
 # bump-my-version (see [dependency-groups] `release`).
 [tool.bumpversion]
 current_version = "0.1.1"
+# Commit the bump and create an annotated tag (pushed by `git push` with
+# `push.followTags` set); pushing the tag triggers the Release workflow.
+commit = true
+message = ":bookmark: {new_version}"
+commit_args = "--edit"
+tag = true
+tag_name = "{new_version}"
+tag_message = "{new_version}"
 files = [
     # Searches are anchored with lookbehinds so the match (and therefore the
-    # replacement) is the version string itself only; in Cargo.toml the
-    # anchor is the package name so the `pyo3` dependency version can never
-    # match.
+    # replacement) is the version string itself only; in Cargo.toml and
+    # Cargo.lock the anchor is the package name so the version of a
+    # dependency can never match.
     {filename = "Cargo.toml", search = '(?<=name = "santanico"\nversion = ")[0-9]+\.[0-9]+\.[0-9]+', regex = true},
+    {filename = "Cargo.lock", search = '(?<=name = "santanico"\nversion = ")[0-9]+\.[0-9]+\.[0-9]+', regex = true},
     {filename = "README.rst", search = '(?<=:Version: )[0-9]+\.[0-9]+\.[0-9]+', regex = true},
     {filename = "docs/conf.py", search = '(?<=release = ")[0-9]+\.[0-9]+\.[0-9]+', regex = true},
 ]
