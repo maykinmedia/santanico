@@ -1,6 +1,6 @@
 [package]
 name = "santanico"
-version = "0.1.1"
+version = "0.1.2"
 description = "Strip document metadata at scary speeds with Python and Rust."
 license = "MIT"
 repository = "https://github.com/maykinmedia/santanico"

@@ -1,7 +1,7 @@
 Welcome to santanico's documentation!
 =====================================
 
-:Version: 0.1.1
+:Version: 0.1.2
 :Source: https://github.com/maykinmedia/santanico
 :Keywords: ``rtf``, ``metadata``, ``sanitizer``, ``privacy``, ``streaming``, ``rust``, ``pyo3``
 :PythonVersion: 3.11

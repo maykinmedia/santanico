@@ -62,7 +62,7 @@ release = [
 # README.rst and docs/conf.py carry static copies, kept in sync by running
 # bump-my-version (see [dependency-groups] `release`).
 [tool.bumpversion]
-current_version = "0.1.1"
+current_version = "0.1.2"
 # Commit the bump and create an annotated tag (pushed by `git push` with
 # `push.followTags` set); pushing the tag triggers the Release workflow.
 commit = true
