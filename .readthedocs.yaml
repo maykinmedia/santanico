@@ -20,5 +20,4 @@ sphinx:
 # Rust extension does not need to be built.
 python:
   install:
-    - method: pip
-      requirements: docs/requirements.txt
+    - requirements: docs/requirements.txt
