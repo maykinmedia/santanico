@@ -5,6 +5,7 @@ build-backend = "maturin"
 [project]
 name = "santanico"
 description = "Strip document metadata at scary speeds with Python and Rust."
+readme = "README.rst"
 authors = [
     {name = "Maykin Media", email = "support@maykinmedia.nl"}
 ]
@@ -63,12 +64,14 @@ release = [
 # bump-my-version (see [dependency-groups] `release`).
 [tool.bumpversion]
 current_version = "0.1.2"
-# Commit the bump and create an annotated tag (pushed by `git push` with
-# `push.followTags` set); pushing the tag triggers the Release workflow.
+# Commit the bump, but don't tag: `main` only accepts changes through PRs,
+# and a squash/rebase merge would leave a tag made on the release branch
+# pointing at a commit outside `main`. Tag `main` after the bump PR is
+# merged; pushing that tag triggers the Release workflow.
 commit = true
 message = ":bookmark: {new_version}"
 commit_args = "--edit"
-tag = true
+tag = false
 tag_name = "{new_version}"
 tag_message = "{new_version}"
 files = [

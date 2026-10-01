@@ -7,6 +7,10 @@
 # ref, including a tag) builds and attests the artifacts without publishing,
 # as a dry run.
 #
+# Cutting a release: merge a version bump PR (`bump-my-version bump patch`
+# on a branch), then tag the merged commit on `main` with the new version
+# and push the tag. The tag must match the version in Cargo.toml.
+#
 # Target set is intentionally minimal: we have a pure-Python fallback for
 # anything not covered. Extend on community request, not speculation.
 name: Release
